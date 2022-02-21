@@ -6,27 +6,52 @@ import (
 )
 
 type block struct {
-	data string
-	hash string
+	data     string
+	hash     string
 	prevHash string
 }
 
-func main(){
-	genesisBlock := block{"Genesis Block", "",""}
-	hash := sha256.Sum256([]byte(genesisBlock.data + genesisBlock.prevHash))
-	hexHash := fmt.Sprintf("%x", hash)
-	genesisBlock.hash = hexHash	
+type blockchain struct {
+	blocks []block
 }
 
-// block은 data와 hash를 가지며, hash는 이전 block의 hash와
-// data를 더해 해쉬함수를 적용한 값이다. prevHash가 이전 block
-// 의 hash이다.
+func (b *blockchain) getLastHash() string {
+	if len(b.blocks) > 0 {
+		return b.blocks[len(b.blocks)-1].hash
+	}
+	return ""
+}
 
-// genesisBlock은 첫 번째 block이다. prevHash는 빈 값이 되어야 한다.
-// hash 함수로  SHA256 알고리즘이 대부분 사용된다. go는 내장함수로 가지고 있다.
-// sha256.Sum256은 byte의 slice를 인자로 받는다. string을 []byte
-// 로 바꾸는 방법은 위와 같다.
+func (b *blockchain) addBlock(data string) {
+	newBlock := block{data, "", b.getLastHash()}
+	hash := sha256.Sum256([]byte(data + newBlock.prevHash))
+	hexHash := fmt.Sprintf("%x", hash)
+	newBlock.hash = hexHash
+	b.blocks = append(b.blocks, newBlock)
+}
 
-// 다만 sha256의 리턴값도 []byte인데, 보통의 암호화폐의 경우 이를
-// 16진법으로 hash값을 쓴다. fmt.Springf는 첫 번째 인자의 형식으로
-// 해당 값을 변환하여 리턴한다. 이를 genesis block의 hash에 넣는다.
+func (b *blockchain) listBlocks() {
+	for _, block := range b.blocks {
+		fmt.Printf("Data: %s\n", block.data)
+		fmt.Printf("Prev Hash: %s\n", block.prevHash)
+		fmt.Printf("Hash: %s\n", block.hash)
+	}
+}
+
+func main() {
+	chain := blockchain{}
+	chain.addBlock("Genesis block")
+	chain.addBlock("Second block")
+	chain.addBlock("Third block")
+	chain.listBlocks()
+}
+
+// blockchain struct를 구현하여 block의 array를 만든다.
+// reciever 함수를 사용하여, 해당 struct에서 사용할 수 있는 메소드를 생성한다.
+
+// addBlock은 data를 받아 block을 추가하는 메소드이다.
+// 새 block을 형성하여 hash와 prevHash를 추가한다.
+// 이전 강의에서 달라진 것은 없다
+
+// listBlocks는 모든 block을 보여준다
+// Printf는 format을 맞추어서 print해주는 함수이다.
