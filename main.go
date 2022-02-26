@@ -1,9 +1,21 @@
 package main
 
-import "github.com/hs04111/nomad_coin/blockchain"
+import (
+	"fmt"
+
+	"github.com/hs04111/nomad_coin/blockchain"
+)
 
 func main() {
 	chain := blockchain.GetBlockchain()
+	chain.AddBlock("First")
+	chain.AddBlock("Second")
+	chain.AddBlock("Third")
+	for _, block := range chain.AllBlocks() {
+		fmt.Printf("Data: %s\n", block.Data)
+		fmt.Printf("Prev Hash: %s\n", block.PrevHash)
+		fmt.Printf("Hash: %s\n", block.Hash)
+	}
 }
 
 // 리팩토링: Singleton pattern을 이용한다
